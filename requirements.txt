@@ -4,6 +4,7 @@ dj-database-url==2.3.0
 Django==5.1
 django-cors-headers==4.6.0
 django-database-url==1.0.3
+django-filter==24.3
 djangorestframework==3.15.2
 et_xmlfile==2.0.0
 gunicorn==23.0.0
