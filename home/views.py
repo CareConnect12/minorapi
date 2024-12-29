@@ -35,7 +35,7 @@ class enter(APIView):
         if user is None:
             return Response({'status':200,'message':'invlaid username and password'})
         request.session['username']=request.data['username']
-        request.session.set_expiry(30)
+        # request.session.set_expiry(30)
         print(request.session['username'])
         return Response({'status':200,'message':'login'})
 class profile(APIView):
@@ -111,7 +111,7 @@ def view_beds(request,id):
         serializer=bedsserializer(data)
         return Response({'status':200,'message':serializer.data})
     except hospitalinfo.DoesNotExist:  
-        return Response({'status':404,'message':'error'})
+        return Response({'status':404,'message':serializer.errors})
         
     
 
@@ -163,6 +163,24 @@ def finalinfo(request):
      user=finalinformation.objects.all()
      serializer=finalinfoserializer(user,many=True)
      return Response({'status':200,'message':serializer.data})
+    
+
+class Doctor_registration(APIView):
+    
+     def post(self,request):
+
+        serializer=Doctorserializer(data=request.data)
+        if not serializer.is_valid():
+            return Response({'status':404,'message':serializer.errors})
+        serializer.save()
+        return Response({'status':200,'message':serializer.data})
+     
+
+
+
+     
+     
+
 
 
     

@@ -12,6 +12,7 @@ https://docs.djangoproject.com/en/5.0/ref/settings/
 
 from pathlib import Path
 import os
+import dj_database_url
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -27,6 +28,7 @@ SECRET_KEY = 'django-insecure-0@b0tu3f7+dc9-q1ziyly8a7f6o%r$va78ny!!hbs$c+s8ik*x
 DEBUG = True
 
 ALLOWED_HOSTS = ['*']
+CORS_ALLOW_ALL_ORIGINS = True
 
 
 # Application definition
@@ -49,36 +51,16 @@ MIDDLEWARE = [
     'corsheaders.middleware.CorsMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
+    'corsheaders.middleware.CorsMiddleware',
+    'whitenoise.middleware.WhiteNoiseMiddleware', 
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
-CORS_ALLOW_ALL_ORIGINS = False
-CORS_ALLOWED_ORIGINS = [
-    "https://example.com",
-    "https://sub.example.com",
-]
-CORS_ALLOW_METHODS = [
-    "DELETE",
-    "GET",
-    "OPTIONS",
-    "PATCH",
-    "POST",
-    "PUT",
-]
-CORS_ALLOW_HEADERS = [
-    "accept",
-    "authorization",
-    "content-type",
-    "origin",
-    "x-csrftoken",
-    "x-requested-with",
-]
-CORS_EXPOSE_HEADERS = [
-    "Content-Type",
-    "X-CSRFToken",
-]
+
+
+
 CORS_ALLOW_CREDENTIALS = True
 
 ROOT_URLCONF = 'minor_api.urls'
@@ -111,6 +93,8 @@ DATABASES = {
         'NAME': BASE_DIR / 'db.sqlite3',
     }
 }
+
+DATABASES['default']=dj_database_url.parse('postgresql://careconnect_database_88w4_user:B2HHIiLJMDfQaiB8kvEKTp2n6C2N6oLK@dpg-ctohqvbtq21c73ctooqg-a.oregon-postgres.render.com/careconnect_database_88w4')
 
 
 # Password validation
@@ -148,7 +132,7 @@ EMAIL_USE_TLS=True
 EMAIL_PORT= 587
 EMAIL_HOST_USER="kadskargaurav@gmail.com"
 EMAIL_HOST_PASSWORD="sfrxgilmxrvxusyi"
-ALLOWED_HOSTS=[]
+
 
 STATIC_URL = '/static/'
 STATIC_ROOT=os.path.join(BASE_DIR,'staticfiles')
@@ -161,6 +145,20 @@ MEDIA_URL='/media/'
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.0/ref/settings/#default-auto-field
+
+STATIC_URL = '/static/'
+
+# Directory where static files will be collected (used in production)
+STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
+
+# Directories for custom static files (used in development)
+STATICFILES_DIRS = [
+    os.path.join(BASE_DIR, 'static'),
+]
+
+# Use WhiteNoise for serving static files in production
+if not DEBUG:  # Only for production
+    STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 

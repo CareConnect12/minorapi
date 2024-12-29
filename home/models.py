@@ -119,11 +119,26 @@ class finalinformation(models.Model):
     special_request=models.TextField()
 
 
+# Model for Doctor registration
 
-
-
-    # def __str__(self):
-    #     return self.patient_name
+class DoctorRegistration(models.Model):
+    User=models.ForeignKey(User,on_delete=models.SET_NULL,null=True)
+    full_name=models.CharField(max_length=200)
+    fathers_name=models.CharField(max_length=200)
+    gender=models.CharField(choices=gen,max_length=200)
+    email=models.CharField(max_length=200,unique=True)
+    passcode=models.TextField()
+    address1=models.TextField()
+    address2=models.TextField()
+    city=models.CharField(max_length=50)
+    state=models.CharField(choices=sta,max_length=50)
+    zip=models.IntegerField()
+    start_time=models.TextField()
+    end_time=models.TextField()
+    license=models.FileField(upload_to="Doctor_licence")
+    def __str__(self):
+        return self.full_name
+    
 
 
 

@@ -19,4 +19,6 @@ urlpatterns = [
     path('discharge/<id>/',discharge),
     path('viewpatient/',finalinfo),
     path('admin/', admin.site.urls),
+    path('Doctorregistration/',Doctor_registration.as_view()),
+
 ]
