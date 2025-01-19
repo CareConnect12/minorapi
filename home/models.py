@@ -52,6 +52,8 @@ class registration(models.Model):
     city=models.CharField(max_length=50)
     state=models.CharField(choices=sta,max_length=50)
     zip=models.IntegerField()
+    token=models.TextField(default='')
+    is_verified=models.BooleanField(default=False)
     def __str__(self):
         return self.full_name
 
@@ -134,9 +136,11 @@ class DoctorRegistration(models.Model):
     city=models.CharField(max_length=50)
     state=models.CharField(choices=sta,max_length=50)
     zip=models.IntegerField()
-    start_time=models.TextField()
-    end_time=models.TextField()
+    start_time=models.PositiveIntegerField()
+    end_time=models.PositiveIntegerField()
     login_status=models.IntegerField(default=0)
+    token=models.TextField(default='')
+    is_verified=models.BooleanField(default=False)
     # license=models.FileField(upload_to="Doctor_licence")
     def __str__(self):
         return self.full_name
@@ -144,6 +148,7 @@ class DoctorRegistration(models.Model):
     
 # Doctor's appointment slot model
 class Doctor_slot(models.Model):
+    slot_houre=models.PositiveIntegerField(default=0)
     slot_type=models.CharField(max_length=200)
     slot_duration=models.TextField()
 

@@ -1,6 +1,6 @@
 from home.models import *
 from rest_framework import serializers
-
+import secrets
 
 
 class registerserializer(serializers.ModelSerializer):
@@ -12,6 +12,7 @@ class registerserializer(serializers.ModelSerializer):
         user=User.objects.filter(username=username)
         if user.exists():
             raise serializers.ValidationError({'error':'username is already taken'})
+        user_token=secrets.token_hex(16)
         obj1=registration.objects.create(
             full_name=validated_data['full_name'],
             fathers_name=validated_data['fathers_name'],
@@ -22,7 +23,8 @@ class registerserializer(serializers.ModelSerializer):
             address2=validated_data['address2'],
             city=validated_data['city'],
             state=validated_data['state'],
-            zip=validated_data['zip']
+            zip=validated_data['zip'],
+            token=user_token
         )
         obj1.save()
         obj2=User.objects.create(
@@ -30,7 +32,7 @@ class registerserializer(serializers.ModelSerializer):
         )
         obj2.set_password(validated_data['code'])
         obj2.save()
-        return validated_data
+        return user_token
 
 class loginserializer(serializers.ModelSerializer):
     class Meta:
@@ -85,6 +87,7 @@ class Doctorserializer(serializers.ModelSerializer):
     def create(self, validated_data):
         username=validated_data['email']
         status_obj=User.objects.filter(username=username)
+        user_token=secrets.token_hex(16)
         if status_obj.exists():
             raise serializers.ValidationError({'error':'user with this username is already exists'})
         obj1=User.objects.create(
@@ -105,10 +108,11 @@ class Doctorserializer(serializers.ModelSerializer):
             zip=validated_data['zip'],
             start_time=validated_data['start_time'],
             end_time=validated_data['end_time'],
+            token=user_token
             # license=validated_data['license']
         )
         obj.save()
-        return validated_data
+        return user_token
 
 
 #  serializer for the Doctor's slot]

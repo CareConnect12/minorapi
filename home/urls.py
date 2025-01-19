@@ -5,7 +5,7 @@ from home.views import *
 
 urlpatterns = [
     path('register/',register.as_view()),
-    path('login/',enter.as_view()),
+    path('login_user/',enter.as_view()),
     path('profile/',profile.as_view()),
     path('feedback/',feedback.as_view()),
     path('viewbeds/',filterbeds.as_view()),
@@ -27,5 +27,6 @@ urlpatterns = [
     path('Available_slot/',Available_slot.as_view()),
     path('Available_slot_by_date/',Available_slot_by_date.as_view()),
     path('requestforappointment/',requestforappointment.as_view()),
-    path('appointment_status/',appointment_status.as_view())
+    path('appointment_status/',appointment_status.as_view()),
+    path('login/',verify_token_for_user)
 ]

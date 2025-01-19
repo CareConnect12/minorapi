@@ -14,22 +14,45 @@ from home.login_update import update_login
 from rest_framework import status
 
 
-# Create your views here.
-
+# Create your views here
 class register(APIView):
     def post(self,request):
         serializer=registerserializer(data=request.data)
         if not serializer.is_valid():
             return Response({'status':200,'message':serializer.errors})
+        user_token=serializer.save()
         subject="Account Verification for CareConnect"
-        message="Dear User,\n\n Thank you for registering with CareConnect.\n\n To complete the registration process and ensure the security of your account, please verify your email address by clicking the link below: \n http://127.0.0.1:8000/login/ \n\n If you are unable to click the link above, please copy and paste it into your web browser's address bar.\n\n Once your email address has been verified, you will gain full access to our platform and its features. \n\n If you did not register with CareConnect, please ignore this email.\n\n Thank you for choosing CareConnect. If you have any questions or need further assistance, please don't hesitate to contact us at CareConnect.support@gmail.com.\n\n Best regards"
+        message = (
+        f"Dear User,\n\n"
+        f"Thank you for registering with CareConnect.\n\n"
+        f"To complete the registration process and ensure the security of your account, "
+        f"please verify your email address by clicking the link below:\n"
+        f"http://127.0.0.1:8000/login/?token={user_token}\n\n"
+        f"If you are unable to click the link above, please copy and paste it into your web browser's address bar.\n\n"
+        f"Once your email address has been verified, you will gain full access to our platform and its features.\n\n"
+        f"If you did not register with CareConnect, please ignore this email.\n\n"
+        f"Thank you for choosing CareConnect. If you have any questions or need further assistance, "
+        f"please contact us at CareConnect.support@gmail.com.\n\n"
+        f"Best regards,\n"
+        f"CareConnect Team"
+        )
         from_email=settings.EMAIL_HOST_USER
         user=request.data['email']
         recipient_list=[user]
+        
         send_mail(subject,message,from_email,recipient_list)
-        serializer.save()
-        return Response({'status':200,'message':serializer.data})
-    
+        
+        return Response({'status':200,'message':'verification token is sent'})
+
+@api_view(['GET'])
+def verify_token_for_user(request):
+     token=request.GET.get('token')
+     user_obj=registration.objects.filter(token=token).update(is_verified=1)
+     if user_obj==1:
+          return Response({'status':status.HTTP_200_OK,'message':'verified'})
+     else:
+          return Response({'status':status.HTTP_400_BAD_REQUEST,'message':'Invalid token'})
+
 
 # for login user
 class enter(APIView):
@@ -188,8 +211,6 @@ def finalinfo(request):
      serializer=finalinfoserializer(user,many=True)
      return Response({'status':200,'message':serializer.data})
 
-
-
 # Doctor's registration View
 class Doctor_registration(APIView):
     
@@ -198,8 +219,28 @@ class Doctor_registration(APIView):
         serializer=Doctorserializer(data=request.data)
         if not serializer.is_valid():
             return Response({'status':404,'message':serializer.errors})
-        serializer.save()
-        return Response({'status':200,'message':serializer.data})
+        user_token=serializer.save()
+        subject="Account Verification for CareConnect"
+        message = (
+        f"Dear User,\n\n"
+        f"Thank you for registering with CareConnect.\n\n"
+        f"To complete the registration process and ensure the security of your account, "
+        f"please verify your email address by clicking the link below:\n"
+        f"http://127.0.0.1:8000/login/?token={user_token}\n\n"
+        f"If you are unable to click the link above, please copy and paste it into your web browser's address bar.\n\n"
+        f"Once your email address has been verified, you will gain full access to our platform and its features.\n\n"
+        f"If you did not register with CareConnect, please ignore this email.\n\n"
+        f"Thank you for choosing CareConnect. If you have any questions or need further assistance, "
+        f"please contact us at CareConnect.support@gmail.com.\n\n"
+        f"Best regards,\n"
+        f"CareConnect Team"
+        )
+        from_email=settings.EMAIL_HOST_USER
+        user=request.data['email']
+        recipient_list=[user]
+        
+        send_mail(subject,message,from_email,recipient_list)
+        return Response({'status':status.HTTP_200_OK,'meesage':'verification token is sent'})
 
 
 
@@ -228,7 +269,7 @@ class Doctor_login(APIView):
 def Doctor_list(request):
     obj=DoctorRegistration.objects.filter(login_status=1)
     serializer=Doctorserializer(obj,many=True)
-    return Response({'statua':status.HTTP_200_OK,'message':serializer.data})
+    return Response({'status':status.HTTP_200_OK,'message':serializer.data})
 
 
 # for Doctor_slot based on the Slot_type(morning , night.....)
@@ -293,12 +334,11 @@ class requestforappointment(APIView):
                     return Response({'status':status.HTTP_400_BAD_REQUEST,'error':serializer.errors})
                serializer.save()
                return Response({'status':status.HTTP_200_OK,'message':'success'})
-        
-# for display the appointment status to the user as well as doctor's
 
+       
+# for display the appointment status to the user as well as doctor's
 class appointment_status(APIView):
-     def get(self,request):
-         
+     def get(self,request): 
         if request.session.has_key('user_id') and  request.session.has_key('user_type'):
                 user_type=request.session['user_type']  
                 user_id=request.session['user_id']
@@ -309,8 +349,7 @@ class appointment_status(APIView):
                 elif user_type=='Doctor':
                      obj_doctor=Appointment.objects.filter(Doctor_id=user_id)
                      serializer_doctor=Bookedserializer(obj_doctor,many=True,fields=['user_name','booked_slot','appointment_date','purpose','notes','status','payment_status'])
-                     return Response({'status':status.HTTP_200_OK,'message':serializer_doctor.data})
-        
+                     return Response({'status':status.HTTP_200_OK,'message':serializer_doctor.data}) 
         else:
             return Response({'status':status.HTTP_400_BAD_REQUEST,'error':'login required'})
 
