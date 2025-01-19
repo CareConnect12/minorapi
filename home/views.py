@@ -68,7 +68,7 @@ class enter(APIView):
         request.session['user_type']='Normal'
         # request.session.set_expiry(30)
         print(request.session['username'])
-        return Response({'status':200,'message':'login'})
+        return Response({'status':status.HTTP_200_OK,'message':'success','token':obj_id.token})
     
 # for profile
 class profile(APIView):
@@ -260,7 +260,7 @@ class Doctor_login(APIView):
                request.session['user_type']='Doctor'
                login_update_status=update_login(username,1)
                if (login_update_status=="successfull"): 
-                    return Response({'status':200,'message':'login','login_user':request.session['username']})
+                    return Response({'status':200,'message':'login','login_user':request.session['username'],'token':obj.token})
 
 
 
