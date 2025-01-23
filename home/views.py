@@ -354,6 +354,16 @@ class appointment_status(APIView):
             return Response({'status':status.HTTP_400_BAD_REQUEST,'error':'login required'})
 
 
+class logout_user(APIView):
+     def post(self,request):
+          if request.session.has_key('user_id'):
+               request.session.set_expiry(1)
+               return Response({'status':status.HTTP_200_OK,'message':'logout'})
+          else:
+               return Response({'status':status.HTTP_400_BAD_REQUEST,'message':'no user login'})
+          
+
+
     
 
 

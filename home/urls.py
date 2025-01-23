@@ -28,5 +28,6 @@ urlpatterns = [
     path('Available_slot_by_date/',Available_slot_by_date.as_view()),
     path('requestforappointment/',requestforappointment.as_view()),
     path('appointment_status/',appointment_status.as_view()),
-    path('login/',verify_token_for_user)
+    path('login/',verify_token_for_user),
+    path('logout/',logout_user.as_view())
 ]
