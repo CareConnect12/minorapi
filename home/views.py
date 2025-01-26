@@ -361,6 +361,15 @@ class logout_user(APIView):
                return Response({'status':status.HTTP_200_OK,'message':'logout'})
           else:
                return Response({'status':status.HTTP_400_BAD_REQUEST,'message':'no user login'})
+
+class profile_data(APIView):
+     def post(self,request):
+          token=request.data['token']
+          obj=registration.objects.filter(token=token)
+          serializer=profileserializer(obj,many=True)
+          return Response({'status':status.HTTP_200_OK,'message':serializer.data})
+     
+
           
 
 

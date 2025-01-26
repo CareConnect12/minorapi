@@ -29,5 +29,6 @@ urlpatterns = [
     path('requestforappointment/',requestforappointment.as_view()),
     path('appointment_status/',appointment_status.as_view()),
     path('login/',verify_token_for_user),
-    path('logout/',logout_user.as_view())
+    path('logout/',logout_user.as_view()),
+    path('profile_data/',profile_data.as_view())
 ]
