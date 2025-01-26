@@ -26,8 +26,13 @@ SECRET_KEY = 'django-insecure-0@b0tu3f7+dc9-q1ziyly8a7f6o%r$va78ny!!hbs$c+s8ik*x
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
+CORS_ALLOW_CREDENTIALS = True
 
-ALLOWED_HOSTS = ['*']
+CORS_ALLOWED_ORIGINS = [
+    "http://localhost:5173",  
+]
+ALLOWED_HOSTS = ['minor-api-new.onrender.com', 'localhost', '*']
+
 
 
 # Application definition
@@ -56,7 +61,8 @@ MIDDLEWARE = [
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
 
-CORS_ALLOW_CREDENTIALS = True
+
+
 
 ROOT_URLCONF = 'minor_api.urls'
 
@@ -129,9 +135,9 @@ EMAIL_HOST_PASSWORD="sfrxgilmxrvxusyi"
 
 STATIC_URL = '/static/'
 STATIC_ROOT=os.path.join(BASE_DIR,'staticfiles')
-STATICFILES_DIR={
-    os.path.join(BASE_DIR,"public/static")
-}
+STATICFILES_DIRS = [
+    os.path.join(BASE_DIR, "public/static"),
+]
 MEDIA_ROOT=os.path.join(BASE_DIR,'public/static')
 MEDIA_URL='/media/'
 
