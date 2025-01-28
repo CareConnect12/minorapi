@@ -60,15 +60,18 @@ class enter(APIView):
         username=request.data['username']
         password=request.data['password']
         obj_id=registration.objects.get(email=username)
-        user=authenticate(username=username,password=str(password))
-        if user is None:
-            return Response({'status':200,'message':'invlaid username and password'})
-        request.session['username']=request.data['username']
-        request.session['user_id']=obj_id.id
-        request.session['user_type']='Normal'
-        # request.session.set_expiry(30)
-        print(request.session['username'])
-        return Response({'status':status.HTTP_200_OK,'message':'success','token':obj_id.token})
+        if obj_id.is_verified == True or obj_id.is_verified ==1:
+            user=authenticate(username=username,password=str(password))
+            if user is None:
+                return Response({'status':200,'message':'invlaid username and password'})
+            request.session['username']=request.data['username']
+            request.session['user_id']=obj_id.id
+            request.session['user_type']='Normal'
+            # request.session.set_expiry(30)
+            print(request.session['username'])
+            return Response({'status':status.HTTP_200_OK,'message':'success','token':obj_id.token})
+        else:
+            return Response({'status':status.HTTP_401_UNAUTHORIZED,'message':" user is not verified"}) 
     
 # for profile
 class profile(APIView):
