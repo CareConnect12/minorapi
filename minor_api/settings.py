@@ -95,7 +95,7 @@ DATABASES = {
     }
 }
 
-DATABASES['default']=dj_database_url.parse("postgresql://careconnect_database_otb2_user:U8kP3fK8CYVzJPtokB2vLOuJmGXwWjJW@dpg-cu6i66ij1k6c73f7po6g-a.oregon-postgres.render.com/careconnect_database_otb2")
+DATABASES['default']=dj_database_url.parse("postgresql://major_database_user:WZZ6JPjhU2jIVNqL3Ueoa8KFpFSYPtEJ@dpg-cv3tnmd6l47c7388ubeg-a.oregon-postgres.render.com/major_database")
 
 # Password validation
 # https://docs.djangoproject.com/en/5.0/ref/settings/#auth-password-validators
