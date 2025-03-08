@@ -106,8 +106,6 @@ class Doctorserializer(serializers.ModelSerializer):
             city=validated_data['city'],
             state=validated_data['state'],
             zip=validated_data['zip'],
-            start_time=validated_data['start_time'],
-            end_time=validated_data['end_time'],
             token=user_token
             # license=validated_data['license']
         )
@@ -123,7 +121,6 @@ class Doctor_slot_serializer(serializers.ModelSerializer):
     
 
 # Serializer for booked appointment
-
 class Bookedserializer(serializers.ModelSerializer):
     class Meta:
         model=Appointment
@@ -139,6 +136,13 @@ class Bookedserializer(serializers.ModelSerializer):
             existing = set(self.fields.keys())
             for field_name in existing - allowed:
                 self.fields.pop(field_name)
+            
+# Get Doctor's Serializer
+class GetDoctorSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = DoctorRegistration
+        fields="__all__"
+
 
 
 

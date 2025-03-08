@@ -2,47 +2,33 @@ from django.shortcuts import render
 from rest_framework.response import Response
 from rest_framework.decorators import APIView
 from rest_framework.decorators import api_view
-from django.core.mail import send_mail
 from django.contrib.auth import authenticate
 from home.models import *
-from django.conf import settings
 from home.serializer import *
 from home.models import *
 from rest_framework import filters
 from rest_framework.generics import ListAPIView
 from home.login_update import update_login
 from rest_framework import status
+from .GenerateOtp import *
 
 
 # Create your views here
 class register(APIView):
     def post(self,request):
         serializer=registerserializer(data=request.data)
+        SourceSystem=request.data['SourceSystem']
         if not serializer.is_valid():
             return Response({'status':200,'message':serializer.errors})
         user_token=serializer.save()
-        subject="Account Verification for CareConnect"
-        message = (
-        f"Dear User,\n\n"
-        f"Thank you for registering with CareConnect.\n\n"
-        f"To complete the registration process and ensure the security of your account, "
-        f"please verify your email address by clicking the link below:\n"
-        f"https://minor-api-new.onrender.com/login/?token={user_token}\n\n"
-        f"If you are unable to click the link above, please copy and paste it into your web browser's address bar.\n\n"
-        f"Once your email address has been verified, you will gain full access to our platform and its features.\n\n"
-        f"If you did not register with CareConnect, please ignore this email.\n\n"
-        f"Thank you for choosing CareConnect. If you have any questions or need further assistance, "
-        f"please contact us at CareConnect.support@gmail.com.\n\n"
-        f"Best regards,\n"
-        f"CareConnect Team"
-        )
-        from_email=settings.EMAIL_HOST_USER
         user=request.data['email']
-        recipient_list=[user]
-        
-        send_mail(subject,message,from_email,recipient_list)
-        
-        return Response({'status':200,'message':'verification token is sent'})
+        if(SourceSystem=="Mobile"):
+            userOtp=GenerateOtp()
+            MobileMail(userOtp,user)
+            return Response({'status':200,'message':'verification token is sent',"Token":user_token,"Otp":userOtp})
+        else:
+            WebMail(user_token,user)
+            return Response({'status':200,'message':'verification token is sent'})
 
 @api_view(['GET'])
 def verify_token_for_user(request):
@@ -60,13 +46,14 @@ class enter(APIView):
         username=request.data['username']
         password=request.data['password']
         obj_id=registration.objects.get(email=username)
+        user_role=obj_id.userRole
         if obj_id.is_verified == True or obj_id.is_verified ==1:
             user=authenticate(username=username,password=str(password))
             if user is None:
                 return Response({'status':200,'message':'invlaid username and password'})
             request.session['username']=request.data['username']
             request.session['user_id']=obj_id.id
-            request.session['user_type']='Normal'
+            request.session['user_role']=obj_id.userRole
             # request.session.set_expiry(30)
             print(request.session['username'])
             return Response({'status':status.HTTP_200_OK,'message':'success','token':obj_id.token})
@@ -75,7 +62,6 @@ class enter(APIView):
     
 # for profile
 class profile(APIView):
-
     def get(self,request):
         if request.session.has_key('username'):
             user=request.session['username']
@@ -216,40 +202,19 @@ def finalinfo(request):
 
 # Doctor's registration View
 class Doctor_registration(APIView):
-    
      def post(self,request):
-
         serializer=Doctorserializer(data=request.data)
         if not serializer.is_valid():
             return Response({'status':404,'message':serializer.errors})
         user_token=serializer.save()
-        subject="Account Verification for CareConnect"
-        message = (
-        f"Dear User,\n\n"
-        f"Thank you for registering with CareConnect.\n\n"
-        f"To complete the registration process and ensure the security of your account, "
-        f"please verify your email address by clicking the link below:\n"
-        f"https://minor-api-new.onrender.com/login/?token={user_token}\n\n"
-        f"If you are unable to click the link above, please copy and paste it into your web browser's address bar.\n\n"
-        f"Once your email address has been verified, you will gain full access to our platform and its features.\n\n"
-        f"If you did not register with CareConnect, please ignore this email.\n\n"
-        f"Thank you for choosing CareConnect. If you have any questions or need further assistance, "
-        f"please contact us at CareConnect.support@gmail.com.\n\n"
-        f"Best regards,\n"
-        f"CareConnect Team"
-        )
-        from_email=settings.EMAIL_HOST_USER
         user=request.data['email']
-        recipient_list=[user]
-        
-        send_mail(subject,message,from_email,recipient_list)
+        WebMail(user_token,user)
         return Response({'status':status.HTTP_200_OK,'meesage':'verification token is sent'})
 
 
 
 # For Doctor's Login
 class Doctor_login(APIView):
-     
      def post(self,request):
           passcode=request.data['passcode']
           username=request.data['username']
@@ -267,12 +232,12 @@ class Doctor_login(APIView):
 
 
 
-# list of the available Doctor's
-@api_view(['get'])
-def Doctor_list(request):
-    obj=DoctorRegistration.objects.filter(login_status=1)
-    serializer=Doctorserializer(obj,many=True)
-    return Response({'status':status.HTTP_200_OK,'message':serializer.data})
+# List of the Doctor's 
+@api_view(['GET'])
+def GetAllDoctor(request):
+    DoctorObj=DoctorRegistration.objects.all()
+    serializer=GetDoctorSerializer(DoctorObj,many=True)
+    return Response({'status':status.HTTP_200_OK,'Data':serializer.data})
 
 
 # for Doctor_slot based on the Slot_type(morning , night.....)
@@ -282,6 +247,25 @@ class Doctor_slot_list_by_type(APIView):
         obj=Doctor_slot.objects.filter(slot_type=slot_type)
         serializer=Doctor_slot_serializer(obj,many=True)
         return Response({'status':200,'message':serializer.data})
+    
+# Slot's For a Perticular Hospital
+class Doctor_slot_find(APIView):
+    def post(self,request):
+        Doctor_id=request.data['DoctorId']
+        Doctor_data=DoctorRegistration.objects.get(id=Doctor_id)
+        request_data={}
+        if(Doctor_data.Morning_slot==True):
+            Morning_slot=Doctor_slot.objects.filter(slot_type="Morning")
+            request_data["Morning"]=Doctor_slot_serializer(Morning_slot,many=True).data
+        if (Doctor_data.Evening_slot==True):
+            Evening_slot=Doctor_slot.objects.filter(slot_type="Evening")
+            request_data["Evening"]=Doctor_slot_serializer(Evening_slot,many=True).data
+        if (Doctor_data.Night_slot==True):
+            Night_slot=Doctor_slot.objects.filter(slot_type="Night")
+            request_data["Night"]=Doctor_slot_serializer(Night_slot,many=True).data
+        return Response({'status':status.HTTP_200_OK,'MorningSlot':request_data})
+        
+
     
 
 # For dispaly the Booked slot's
@@ -310,7 +294,6 @@ class Available_slot(APIView):
     
 class Available_slot_by_date(APIView):
     def post(self,request):
-        
         slot_date=request.data['slot_date']
         try:
             booked_slot=Appointment.objects.filter(appointment_date=slot_date)
@@ -371,6 +354,7 @@ class profile_data(APIView):
           obj=registration.objects.filter(token=token)
           serializer=profileserializer(obj,many=True)
           return Response({'status':status.HTTP_200_OK,'message':serializer.data})
+        
      
 
           

@@ -54,6 +54,7 @@ class registration(models.Model):
     zip=models.IntegerField()
     token=models.TextField(default='')
     is_verified=models.BooleanField(default=False)
+    userRole=models.TextField(default="User")
     def __str__(self):
         return self.full_name
 
@@ -136,28 +137,30 @@ class DoctorRegistration(models.Model):
     city=models.CharField(max_length=50)
     state=models.CharField(choices=sta,max_length=50)
     zip=models.IntegerField()
-    start_time=models.PositiveIntegerField()
-    end_time=models.PositiveIntegerField()
+    Morning_slot=models.BooleanField(default=False)
+    Evening_slot=models.BooleanField(default=False)
+    Night_slot=models.BooleanField(default=False)
     login_status=models.IntegerField(default=0)
     token=models.TextField(default='')
     is_verified=models.BooleanField(default=False)
     # license=models.FileField(upload_to="Doctor_licence")
+    userRole=models.TextField(default="Doctor")
     def __str__(self):
         return self.full_name
     
     
 # Doctor's appointment slot model
 class Doctor_slot(models.Model):
-    slot_houre=models.PositiveIntegerField(default=0)
+    slot_hour=models.PositiveIntegerField(default=0)
     slot_type=models.CharField(max_length=200)
     slot_duration=models.TextField()
-
     def __str__(self):
         return self.slot_type
 
 class booking_status(models.Model):
     appointment_date=models.DateField()
     booked_slot=models.TextField()
+
 
     
 
@@ -176,7 +179,6 @@ class Appointment(models.Model):
     meeting_link = models.URLField(blank=True, null=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
-
     def __str__(self):
         return f"{self.user_name} - {self.doctor_name}"
 

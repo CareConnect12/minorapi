@@ -95,7 +95,7 @@ DATABASES = {
     }
 }
 
-DATABASES['default']=dj_database_url.parse("postgresql://major_database_user:WZZ6JPjhU2jIVNqL3Ueoa8KFpFSYPtEJ@dpg-cv3tnmd6l47c7388ubeg-a.oregon-postgres.render.com/major_database")
+# DATABASES['default']=dj_database_url.parse("postgresql://major_database_user:WZZ6JPjhU2jIVNqL3Ueoa8KFpFSYPtEJ@dpg-cv3tnmd6l47c7388ubeg-a.oregon-postgres.render.com/major_database")
 
 # Password validation
 # https://docs.djangoproject.com/en/5.0/ref/settings/#auth-password-validators
