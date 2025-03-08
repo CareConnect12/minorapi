@@ -37,7 +37,7 @@ def MobileMail(user_otp,user):
         f"Thank you for registering with CareConnect.\n\n"
         f"To complete the registration process and ensure the security of your account, "
         f"please verify your email address using the One-Time Password (OTP) provided below:\n\n"
-        f"Your OTP: {otp}\n\n"
+        f"Your OTP: {user_otp}\n\n"
         f"Please enter this OTP in the verification section of the CareConnect platform.\n\n"
         f"If you did not request this, please ignore this email.\n\n"
         f"Thank you for choosing CareConnect. If you have any questions or need further assistance, "

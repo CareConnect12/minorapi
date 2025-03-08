@@ -66,6 +66,7 @@ class feed(models.Model):
         return self.name
 class beds(models.Model):
     Hospital_name = models.CharField(max_length=300)
+    Hospital_id=models.TextField()
     Bed_id=models.CharField(max_length=300,unique=True)
     Ward_number=models.CharField(max_length=100)
     Room_number=models.CharField(max_length=100)
@@ -83,6 +84,7 @@ class hospitalinfo(models.Model):
 ge=(('Male','Male'),
      ('Female','Female'),
      ('Others','Others'))
+
 class patient_info(models.Model):
     Hospital_name = models.CharField(max_length=300)
     Bed_id=models.CharField(max_length=300,unique=True)
@@ -157,12 +159,11 @@ class Doctor_slot(models.Model):
     def __str__(self):
         return self.slot_type
 
-class booking_status(models.Model):
+class Booked_slot(models.Model):
     appointment_date=models.DateField()
     booked_slot=models.TextField()
+    Doctor_id=models.TextField()
 
-
-    
 
 class Appointment(models.Model):
     user_name = models.CharField(max_length=200)

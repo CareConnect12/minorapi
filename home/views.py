@@ -204,31 +204,38 @@ def finalinfo(request):
 class Doctor_registration(APIView):
      def post(self,request):
         serializer=Doctorserializer(data=request.data)
+        SourceSystem=request.data["SourceSystem"]
         if not serializer.is_valid():
             return Response({'status':404,'message':serializer.errors})
         user_token=serializer.save()
         user=request.data['email']
-        WebMail(user_token,user)
+        if(SourceSystem=="Mobile"):
+            userOtp=GenerateOtp()
+            MobileMail(userOtp,user)
+            return Response({'status':200,'message':'verification token is sent',"Token":user_token,"Otp":userOtp})
+        else:
+            WebMail(user_token,user)
+            return Response({'status':200,'message':'verification token is sent'})
         return Response({'status':status.HTTP_200_OK,'meesage':'verification token is sent'})
 
 
 
 # For Doctor's Login
-class Doctor_login(APIView):
-     def post(self,request):
-          passcode=request.data['passcode']
-          username=request.data['username']
-          obj=authenticate(username=username,password=passcode)
-          if obj is None:
-               return Response({'status':404,'message':"invalid credentials"})
-          else:
-               obj=DoctorRegistration.objects.get(email=username)
-               request.session['username']=username
-               request.session['user_id']=obj.id
-               request.session['user_type']='Doctor'
-               login_update_status=update_login(username,1)
-               if (login_update_status=="successfull"): 
-                    return Response({'status':200,'message':'login','login_user':request.session['username'],'token':obj.token})
+# class Doctor_login(APIView):
+#      def post(self,request):
+#           passcode=request.data['passcode']
+#           username=request.data['username']
+#           obj=authenticate(username=username,password=passcode)
+#           if obj is None:
+#                return Response({'status':404,'message':"invalid credentials"})
+#           else:
+#                obj=DoctorRegistration.objects.get(email=username)
+#                request.session['username']=username
+#                request.session['user_id']=obj.id
+#                request.session['user_type']='Doctor'
+#                login_update_status=update_login(username,1)
+#                if (login_update_status=="successfull"): 
+#                     return Response({'status':200,'message':'login','login_user':request.session['username'],'token':obj.token})
 
 
 
@@ -266,8 +273,6 @@ class Doctor_slot_find(APIView):
         return Response({'status':status.HTTP_200_OK,'MorningSlot':request_data})
         
 
-    
-
 # For dispaly the Booked slot's
 class Booked_slot(APIView):
      def post(self,request):
@@ -277,26 +282,27 @@ class Booked_slot(APIView):
      
     
 # For Display the Available slot
-class Available_slot(APIView):
-     def post(self,request):
-          slot=request.data['slot']
-          slot_date=request.data['slot_date']
-          try:
-            obj=booking_status.objects.filter(booked_slot=slot,appointment_date=slot_date)
-            booked_appoint=obj.values_list('booked_slot',flat=True)
-            available_slots=Doctor_slot.objects.exclude(slot_duration__in=booked_appoint)
-            serializer=Doctor_slot_serializer(available_slots,many=True)
-            return Response({'status':200,'message':serializer.data})
-          except Appointment.DoesNotExist:
-            obj1=Doctor_slot.objects.all()
-            serializer=Doctor_slot_serializer(obj1,many=True)
-            return Response({'status':status.HTTP_200_OK,'message':serializer.data})
+# class Available_slot(APIView):
+#      def post(self,request):
+#           slot=request.data['slot']
+#           slot_date=request.data['slot_date']
+#           try:
+#             obj=booking_status.objects.filter(booked_slot=slot,appointment_date=slot_date)
+#             booked_appoint=obj.values_list('booked_slot',flat=True)
+#             available_slots=Doctor_slot.objects.exclude(slot_duration__in=booked_appoint)
+#             serializer=Doctor_slot_serializer(available_slots,many=True)
+#             return Response({'status':200,'message':serializer.data})
+#           except Appointment.DoesNotExist:
+#             obj1=Doctor_slot.objects.all()
+#             serializer=Doctor_slot_serializer(obj1,many=True)
+#             return Response({'status':status.HTTP_200_OK,'message':serializer.data})
     
-class Available_slot_by_date(APIView):
+class Available_slot_For_Doctor(APIView):
     def post(self,request):
         slot_date=request.data['slot_date']
+        Doctor_id=request.data['Doctor_id']
         try:
-            booked_slot=Appointment.objects.filter(appointment_date=slot_date)
+            booked_slot=Booked_slot.objects.filter(appointment_date=slot_date,Doctor_id=Doctor_id)
             booked_slot_by_date=booked_slot.values_list('booked_slot',flat=True)
             Available_slot=Doctor_slot.objects.exclude(slot_duration__in=booked_slot_by_date)
             serializer=Doctor_slot_serializer(Available_slot,many=True)
@@ -328,7 +334,7 @@ class appointment_status(APIView):
         if request.session.has_key('user_id') and  request.session.has_key('user_type'):
                 user_type=request.session['user_type']  
                 user_id=request.session['user_id']
-                if user_type=='Normal':
+                if user_type=='User':
                     obj_user=Appointment.objects.filter(user_id=user_id)
                     serializer_user=Bookedserializer(obj_user,many=True,fields=['user_name','doctor_name','booked_slot','appointment_date','status','payment_status'])
                     return Response({'status':status.HTTP_200_OK,'message':serializer_user.data})
@@ -348,6 +354,7 @@ class logout_user(APIView):
           else:
                return Response({'status':status.HTTP_400_BAD_REQUEST,'message':'no user login'})
 
+# Service For the Profile data For the Mobile APP
 class profile_data(APIView):
      def post(self,request):
           token=request.data['token']
@@ -356,6 +363,25 @@ class profile_data(APIView):
           return Response({'status':status.HTTP_200_OK,'message':serializer.data})
         
      
+# Service To Find the all bed's for the Perticular Hospital
+class ViewAllBedInHospital(APIView):
+    def post(self,request):
+        HospitalId=request.data['HospitalId']
+        BedObj=beds.objects.filter(Hospital_id=HospitalId)
+        serilaizer=bedsserializer(BedObj,many=True)
+        return Response({'status':status.HTTP_200_OK,'Data':serilaizer.data})
+    
+# Service For Insert the Bed's Data 
+
+class BedsService(APIView):
+    def post(self,request):
+        serilaizer=Insertbedsserializer(data=request.data)
+        if not serilaizer.is_valid():
+            return Response({'status':HTTP_400_BAD_REQUEST,'error':serilaizer.errors})
+        serilaizer.save()
+        return Response({'status':status.HTTP_200_OK,'message':'success'})
+
+
 
           
 

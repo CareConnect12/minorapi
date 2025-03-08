@@ -24,12 +24,14 @@ urlpatterns = [
     path('Doctorlist/',GetAllDoctor),
     path('Doctor_slot/',Doctor_slot_list_by_type.as_view()),
     path('booked_slot/',Booked_slot.as_view()),
-    path('Available_slot/',Available_slot.as_view()),
-    path('Available_slot_by_date/',Available_slot_by_date.as_view()),
+    # path('Available_slot/',Available_slot.as_view()),
+    path('Available_slot_For_Doctor/',Available_slot_For_Doctor.as_view()),
     path('requestforappointment/',requestforappointment.as_view()),
     path('appointment_status/',appointment_status.as_view()),
     path('login/',verify_token_for_user),
     path('logout/',logout_user.as_view()),
     path('profile_data/',profile_data.as_view()),
-    path('Doctor_slot_find/',Doctor_slot_find.as_view())
+    path('Doctor_slot_find/',Doctor_slot_find.as_view()),
+    path('viewBedByHospital/',ViewAllBedInHospital.as_view()),
+    path('createrbed/',BedsService.as_view())
 ]
