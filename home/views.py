@@ -17,7 +17,8 @@ from .GenerateOtp import *
 class register(APIView):
     def post(self,request):
         serializer=registerserializer(data=request.data)
-        SourceSystem=request.data['SourceSystem']
+        if request.data['SourceSystem']:
+            SourceSystem=request.data['SourceSystem']
         if not serializer.is_valid():
             return Response({'status':200,'message':serializer.errors})
         user_token=serializer.save()
